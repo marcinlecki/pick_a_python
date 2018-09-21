@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Aug 07 12:58:45 2017
-
 @author: Marcin
 """
 
@@ -26,19 +25,29 @@ ax.imshow(img)
 xy=[]
 
 
-
+#table with rectangles
+rects=[]
 
 
 #kiedy zaznacza się dane na wykresie
 def onclick(event):
-    a=4.0
-    x=event.xdata-a/2.0
-    y=event.ydata-a/2.0
-    #store the point
-    xy.append((x,y))
-    rect = Rectangle((x,y), a, a, ec='black')
-    ax.add_patch(rect)
-    fig.canvas.draw()
+    if event.button==1:
+        a=4.0
+        x=event.xdata-a/2.0
+        y=event.ydata-a/2.0
+        #   store the point
+        xy.append((x,y))
+        rect = Rectangle((x,y), a, a, ec='black')
+        ax.add_patch(rect)
+        fig.canvas.draw()
+    else:
+        x=event.x
+        y=event.y
+        rects.append(RectArea(x,y))
+        for rect in rects:
+            rect.draw(fig, ax)
+        
+    
     
 
 
@@ -51,7 +60,7 @@ height=0.0
 
 class RectArea:
     #because rectangle or circle were not added to figure a priori - figure and axes must be passed
-    def __init__(self,fig, axes, xi,yi):
+    def __init__(self, xi,yi):
         self.width=20
         self.height=10
         self.x0=xi
@@ -74,16 +83,19 @@ class RectArea:
         self.yr=self.y0+self.height
         self.circle=Circle((self.xr, self.yr), radius=self.r)
         #circle - origin of the rectangle -> left, bottom corner of the rectangle 
-        self.circle_o=Circle((self.xo, self.y0), radius=self.r)
-        #pressing the button on the canvas creates new rectangle - it is inside the constructor
-        canvas=fig.canvas
-        axes=axes
+        self.circle_o=Circle((self.x0, self.y0), radius=self.r)
         self.rect.set_animated(True)
         self.circle.set_animated(True)
+        
+    
+        
+    def draw(self, fig, axes):
+        canvas=fig.canvas
         canvas.draw()
         self.background=canvas.copy_from_bbox(axes.bbox)
         axes.draw_artist(self.rect)
         axes.draw_artist(self.circle)
+        axes.draw_artist(self.circle_o)
         canvas.blit(axes.bbox)
         
 '''     
@@ -126,28 +138,14 @@ class RectArea:
         self.rect.figure.canvas.mpl_disconnect(self.cidpress)
         self.rect.figure.canvas.mpl_disconnect(self.cidrelease)
         self.rect.figure.canvas.mpl_disconnect(self.cidmotion)
-
        
-       
-       
-def onclick(event):
-    x=event.x
-    y=event.y
-    Rarea= RectArea(fig, ax, x,y)
-   
-    
-cidpress = fig.canvas.mpl_connect('button_press_event', onclick)    
+           
         
 '''
     
 
 
 
-'''
-
 
 cidpress = fig.canvas.mpl_connect('button_press_event', onclick)
   
-#cid= fig.canvas.mpl_connect('button_press_event', onclick)
-
-'''
